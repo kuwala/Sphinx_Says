@@ -15,19 +15,34 @@ increase arrayLengthCounter
 read inputs
 */
 /* Variables */
-#define LED_STRIP1_PIN 14
-#define LED_STRIP2_PIN 15
-#define LED_STRIP3_PIN 16
-#define LED_STRIP4_PIN 17
-#define NUM_LEDS 8
-#define NUM_INPUTS 4
+
+/* Story
+
+SphinxCat Says
+Your pet cat has awaked its true egyption soul sucking potential
+Pray to it and feed it souls or else the world will be destroyed
 
 
-#define BUTTON1 1
-#define BUTTON2 2
-#define BUTTON3 3
-#define BUTTON4 4
-#define LED 13
+
+*/
+#define LED_STRIP1_PIN 18
+#define LED_STRIP2_PIN 14
+#define LED_STRIP3_PIN 15
+#define LED_STRIP4_PIN 16
+#define LED_STRIP5_PIN 17
+#define LED_STRIP6_PIN 19
+
+#define NUM_STRIPS 6
+#define NUM_LEDS_PER_STRIP 8
+#define NUM_INPUTS 6
+
+
+#define BUTTON1 5
+#define BUTTON2 1
+#define BUTTON3 2
+#define BUTTON4 3
+#define BUTTON5 4
+#define BUTTON6 6
 
 #define MAX_PATTERN_LENGTH 10
 int examplePattern[MAX_PATTERN_LENGTH];
@@ -38,7 +53,8 @@ bool notGameOver = true;
 bool notDone = true;
 int startPatternLength = 3;
 int currentPatternLength = startPatternLength;
-CRGB leds[NUM_LEDS];
+CRGB leds[NUM_STRIPS][NUM_LEDS_PER_STRIP];
+
 int ledIndex = 0;
 int rgbIndex = 0;
 int brightness = 255;
@@ -55,13 +71,16 @@ void setup() {
   pinMode(BUTTON2, INPUT_PULLUP);
   pinMode(BUTTON3, INPUT_PULLUP);
   pinMode(BUTTON4, INPUT_PULLUP);
-  pinMode(LED, OUTPUT);
+  pinMode(BUTTON5, INPUT_PULLUP);
+  pinMode(BUTTON6, INPUT_PULLUP);
 
   // Setup leds // test
-  FastLED.addLeds<NEOPIXEL, LED_STRIP1_PIN>(leds, NUM_LEDS);
-  FastLED.addLeds<NEOPIXEL, LED_STRIP2_PIN>(leds, NUM_LEDS);
-  FastLED.addLeds<NEOPIXEL, LED_STRIP3_PIN>(leds, NUM_LEDS);
-  FastLED.addLeds<NEOPIXEL, LED_STRIP4_PIN>(leds, NUM_LEDS);
+  FastLED.addLeds<NEOPIXEL, LED_STRIP1_PIN>(leds[0], NUM_LEDS_PER_STRIP);
+  FastLED.addLeds<NEOPIXEL, LED_STRIP2_PIN>(leds[1], NUM_LEDS_PER_STRIP);
+  FastLED.addLeds<NEOPIXEL, LED_STRIP3_PIN>(leds[2], NUM_LEDS_PER_STRIP);
+  FastLED.addLeds<NEOPIXEL, LED_STRIP4_PIN>(leds[3], NUM_LEDS_PER_STRIP);
+  FastLED.addLeds<NEOPIXEL, LED_STRIP5_PIN>(leds[4], NUM_LEDS_PER_STRIP);
+  FastLED.addLeds<NEOPIXEL, LED_STRIP6_PIN>(leds[5], NUM_LEDS_PER_STRIP);
   // leds[ledIndex][rgbIndex] = brightness;
   // FastLED.show();
 }
@@ -72,29 +91,34 @@ void randomizePattern(int len) {
   }
 }
 
-void flashCorrect() {
-  for (size_t i = 0; i < 4; i++) {
-    leds[i][1] = 255;
+void sequenceCorrectAnim() {
+  allButtonsToCat(CRGB::Green);
+}
+void flashRGB(CRGB color) {
+  // flash 2 times on off, on off
+  int times = 2;
+  for (size_t t = 0; t < 2; t++) {
+    // Turn on Green
+    for (size_t i = 0; i < 4; i++) {
+      for (size_t x = 0; x < NUM_STRIPS; x++) {
+        leds[x][i] = color;
+      }
+    }
     FastLED.show();
-    delay(80);
-  }
-  for (size_t i = 0; i < 4; i++) {
-    leds[i][1] = 0;
+    delay(200);
+    // Turn off Green
+    for (size_t i = 0; i < 4; i++) {
+      for (size_t x = 0; x < NUM_STRIPS; x++) {
+        leds[x][i] = CRGB::Black;
+      }
+    }
     FastLED.show();
-    delay(50);
+    delay(150);
   }
 }
-void flashError() {
-  for (size_t i = 0; i < 4; i++) {
-    leds[i][0] = 255;
-    FastLED.show();
-    delay(80);
-  }
-  for (size_t i = 0; i < 4; i++) {
-    leds[i][0] = 0;
-    FastLED.show();
-    delay(50);
-  }
+void sequenceWrongAnim() {
+  // flash error
+  flashRGB(CRGB::Red);
 }
 
 
@@ -106,24 +130,70 @@ bool checkPattern() {
   }
   return true;
 }
-void playEvent(int event) {
+void buttonToCatAnim(int button, CRGB color) {
   // flash a led for 250ms
   // event 0 - 3
-  int waitTime = 320;
-  ledIndex = event;
-  rgbIndex = 2; // Blue
-  leds[ledIndex][rgbIndex] = brightness;
-  FastLED.show();
-  delay(waitTime);
-  leds[ledIndex][rgbIndex] = 0;
-  FastLED.show();
-  delay(waitTime / 2);
+  int waitTime = 40;
+  int strip = button ;
+
+  // Draw strip
+  for (size_t i = NUM_LEDS_PER_STRIP; i --> 0; ){
+    leds[strip][i] = color;
+    FastLED.show();
+    delay(waitTime);
+  }
+  for (size_t i = NUM_LEDS_PER_STRIP; i --> 0; ){
+    leds[strip][i] = CRGB::Black;
+    FastLED.show();
+    delay(waitTime / 2);
+  }
+}
+void catToButtonAnim(int button, CRGB color) {
+  // flash a led for 250ms
+  // event 0 - 3
+  int waitTime = 40;
+  int strip = button ;
+
+  // Draw strip
+  for (size_t i = 0; i < NUM_LEDS_PER_STRIP; i++) {
+    leds[strip][i] = color;
+    FastLED.show();
+    delay(waitTime);
+  }
+  for (size_t i = 0; i < NUM_LEDS_PER_STRIP; i++) {
+    leds[strip][i] = CRGB::Black;
+    FastLED.show();
+    delay(waitTime / 2);
+  }
+}
+void allButtonsToCat(CRGB color) {
+  // all strips shine green into the cat
+  int rgbIndex = 1; // green
+  int waitTime = 30;
+  int brightness = 255;
+  for (size_t i = NUM_LEDS_PER_STRIP; i --> 0; ){
+    for (size_t x = 0; x < NUM_STRIPS; x++) {
+      leds[x][i] = color;
+    }
+    FastLED.show();
+    delay(waitTime);
+  }
+  for (size_t i = NUM_LEDS_PER_STRIP; i --> 0; ){
+    for (size_t x = 0; x < NUM_STRIPS; x++) {
+      leds[x][i] = CRGB::Black;
+    }
+    FastLED.show();
+    delay(waitTime / 2);
+  }
 }
 void loop() {
   // play example pattern
   randomizePattern(currentPatternLength);
   for (size_t i = 0; i < currentPatternLength; i++) {
-    playEvent(examplePattern[i]);
+    int button = examplePattern[i];
+    usbMIDI.sendNoteOn(84+button,127,0);
+    catToButtonAnim(button, CRGB::Blue);
+    usbMIDI.sendNoteOff(84+button,127,0);
   }
 
   // *** Pattern Input Loop
@@ -135,6 +205,8 @@ void loop() {
     int but2 = digitalRead(BUTTON2);
     int but3 = digitalRead(BUTTON3);
     int but4 = digitalRead(BUTTON4);
+    int but5 = digitalRead(BUTTON5);
+    int but6 = digitalRead(BUTTON6);
     int buttonPressed = -1;
 
     if(but1 == LOW ) {
@@ -145,13 +217,19 @@ void loop() {
       buttonPressed = 2;
     } else if (but4 == LOW) {
       buttonPressed = 3;
+    } else if (but5 == LOW) {
+      buttonPressed = 4;
+    } else if (but6 == LOW) {
+      buttonPressed = 5;
     }
 
       // process Input
     if (buttonPressed > -1) {
       // assign to patternArray[]
       // visualize Input
-      playEvent(buttonPressed);
+      usbMIDI.sendNoteOn(84 + buttonPressed,127,0);
+      buttonToCatAnim(buttonPressed, CRGB::DarkSlateBlue);
+      usbMIDI.sendNoteOff(84 + buttonPressed,127,0);
       playerPattern[patternIndex] = buttonPressed;
 
       // ready for next input
@@ -173,13 +251,20 @@ void loop() {
     // play victory
     // increase dificulty
     currentPatternLength += 1;
-    flashCorrect();
+    usbMIDI.sendNoteOn(84+12,127,0);
+    sequenceCorrectAnim();
+    usbMIDI.sendNoteOff(84+12,127,0);
     delay(80);
   } else {
     // gameover state
     // restart
-    flashError();
+    int note = 54;
+    int vel = 127;
+    int channel = 0;
+    usbMIDI.sendNoteOn(note, vel, channel);
+    sequenceWrongAnim();
     delay(80);
+    usbMIDI.sendNoteOff(note, vel, channel);
     currentPatternLength = startPatternLength;
     // play loose
   }
