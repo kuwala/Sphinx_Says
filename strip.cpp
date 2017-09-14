@@ -1,6 +1,6 @@
 #include "strip.h"
 
-Strip::Strip(int i) {
+Strip::Strip() {
 
   // Setup leds // test
   FastLED.addLeds<NEOPIXEL, LED_STRIP1_PIN>(leds[0], NUM_LEDS_PER_STRIP);
@@ -21,6 +21,9 @@ void Strip::draw() {
   leds[0][1] = CHSV(hue, saturation, brightness);
   FastLED.show();
 
+}
+void Strip::setPixel(int strip, int index, int h, int s, int b) {
+  leds[strip][index] = CHSV(h, s, b);
 }
 
 void Strip::update() {

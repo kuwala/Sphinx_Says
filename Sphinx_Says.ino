@@ -3,6 +3,7 @@
 #include "Bounce.h"
 
 #include "strip.h"
+#include "simonsgame.h"
 // The Plan
 /*
 
@@ -25,10 +26,13 @@ Bounce button6 = Bounce(6, 5);
 #define BUTTON5 4
 #define BUTTON6 6
 
-Strip strip(2);
+Strip strip();
+// Simonsgame game(strip);
+// Simonsgame game();
 
 void setup() {
   Serial.begin(115200);
+Simonsgame game(&strip);
 
   pinMode(BUTTON1, INPUT_PULLUP);
   pinMode(BUTTON2, INPUT_PULLUP);
@@ -41,7 +45,7 @@ void setup() {
 
 void loop() {
 
-  strip.update();
+  // strip.update();
   delay(100);
-  strip.draw();
+  // strip.draw();
 }

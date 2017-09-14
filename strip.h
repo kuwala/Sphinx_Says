@@ -29,9 +29,9 @@ class Strip {
   // CRGB leds[NUM_LEDS_PER_STRIP];
   CRGB leds[NUM_STRIPS][NUM_LEDS_PER_STRIP];
 
-  Strip(int i);
+  Strip();
   void clear();
-  void setPixel(int index, int color);
+  void setPixel(int strip, int index, int h, int s, int b);
   void draw();
   void update();
 
