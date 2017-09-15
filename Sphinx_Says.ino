@@ -2,7 +2,7 @@
 #include "FastLED.h"
 #include "Bounce.h"
 
-#include "strip.h"
+#include "strips.h"
 #include "simonsgame.h"
 // The Plan
 /*
@@ -26,13 +26,11 @@ Bounce button6 = Bounce(6, 5);
 #define BUTTON5 4
 #define BUTTON6 6
 
-Strip strip();
-// Simonsgame game(strip);
-// Simonsgame game();
+Strips strips;
+Simonsgame game(&strips);
 
 void setup() {
   Serial.begin(115200);
-Simonsgame game(&strip);
 
   pinMode(BUTTON1, INPUT_PULLUP);
   pinMode(BUTTON2, INPUT_PULLUP);
@@ -46,6 +44,9 @@ Simonsgame game(&strip);
 void loop() {
 
   // strip.update();
-  delay(100);
+  // delay(100);
+  // game.showScore();
+  game.loop();
+  // game.LEDSTest();
   // strip.draw();
 }
