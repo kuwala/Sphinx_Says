@@ -58,6 +58,8 @@ public:
   int buttonToScaleInterval(int button);
   bool checkPattern();
   void loop();
+  void instrumentMode(Bounce* button1);
+  void demoMode();
 
 
 };
